@@ -1,0 +1,4 @@
+__pycache__
+*.pcapng
+IoT_mud_files_locations/*
+merged_pcaps_only/DNS_only
