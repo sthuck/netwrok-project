@@ -7,11 +7,22 @@ from typing import Dict
 
 class AbstractIpMatcher(ABC):
     def is_match(self, packet_ip: bytes) -> bool:
+        """
+        Given ip address (in binary/btyes), return True if matches the rule passed in the constructor
+        :param packet_ip:
+        :return:
+        """
         pass
 
 
 class LiteralIpMatcher(AbstractIpMatcher):
+    """
+    a class that can match an ip address to an ip subnet in cidr notation
+    """
     def __init__(self, ip: str):
+        """
+        :param ip: cidr notation of subnet
+        """
         self.ip = ip
 
     def __str__(self):
@@ -25,11 +36,17 @@ class LiteralIpMatcher(AbstractIpMatcher):
 
 
 class DnsIpMatcher(AbstractIpMatcher):
+    """
+    This class can help match an ip address to a dns name
+    """
     def __init__(self, dns_name: str, reverse_dns: Dict[str, str]):
+        """
+
+        :param dns_name: the dns name to match on, can accept wild cards
+        :param reverse_dns: a dictionary that maps between dns names and ip addresses
+        """
+
         self.dns_name = dns_name
-        """
-        Ip to dns name
-        """
         self.reverse_dns = reverse_dns
 
     def __str__(self):

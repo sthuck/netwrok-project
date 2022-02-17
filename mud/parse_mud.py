@@ -14,6 +14,12 @@ class PacketTracker:
 
 
 def _get_ip_addr_matcher(ip_section, reverse_dns: Dict[str, str]) -> tuple:
+    """
+
+    :param ip_section:
+    :param reverse_dns:
+    :return:
+    """
     if 'source-ipv4-network' in ip_section:
         return LiteralIpMatcher(ip_section['source-ipv4-network']), None
     if 'ietf-acldns:src-dnsname' in ip_section:
