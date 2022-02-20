@@ -2,7 +2,7 @@ import fnmatch
 import ipaddress
 import socket
 from abc import ABC
-from typing import Dict
+from typing import Dict, List
 
 
 class AbstractIpMatcher(ABC):
@@ -39,11 +39,11 @@ class DnsIpMatcher(AbstractIpMatcher):
     """
     This class can help match an ip address to a dns name
     """
-    def __init__(self, dns_name: str, reverse_dns: Dict[str, str]):
+    def __init__(self, dns_name: str, reverse_dns: Dict[str, List[str]]):
         """
 
         :param dns_name: the dns name to match on, can accept wild cards
-        :param reverse_dns: a dictionary that maps between dns names and ip addresses
+        :param reverse_dns: a dictionary that maps between ip addresses and dns names
         """
 
         self.dns_name = dns_name
@@ -57,5 +57,5 @@ class DnsIpMatcher(AbstractIpMatcher):
 
     def is_match(self, packet_ip: bytes) -> bool:
         ip_str = socket.inet_ntoa(packet_ip)
-        packet_dns_name = self.reverse_dns.get(ip_str, 'unknown ip')
-        return fnmatch.fnmatch(packet_dns_name, self.dns_name)
+        packet_dns_name = self.reverse_dns.get(ip_str, ['unknown ip'])
+        return any(fnmatch.fnmatch(host, self.dns_name) for host in packet_dns_name)

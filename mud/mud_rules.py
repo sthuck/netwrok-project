@@ -1,10 +1,12 @@
+import socket
 from abc import ABC
 import dpkt
 from .ip_matcher import AbstractIpMatcher
+from typing import Dict
+from .global_connection_tracker import globalConnectionTracker, ip_packet_to_key, ConnectionTracker
 
 
 class AbstractMudRule(ABC):
-    after_first_packet = False
 
     def verify(self, ip_packet: dpkt.ip.IP) -> bool:
         pass
@@ -15,9 +17,9 @@ class AbstractMudRule(ABC):
         :param ip_packet:
         :return:
         """
-        isFirstPacket = not self.after_first_packet
-        self.after_first_packet = True
-        return isFirstPacket
+        globalConnectionTracker.count(ip_packet)
+        packets_so_far = globalConnectionTracker.get_count_in_connection(ip_packet)
+        return packets_so_far == 1
 
     def __eq__(self, other) -> bool:
         pass
@@ -181,3 +183,28 @@ class MudRuleIGMP(AbstractMudRule):
         if not ip_packet.p == dpkt.ip.IP_PROTO_IGMP:
             return False
         return True
+
+
+class CatchAllRule(AbstractMudRule):
+    """
+    Class meant to "pass" all possible connection, used as a "catch-all" for packets that don't fit anything in the MUD file
+    """
+
+    connectionTracker = ConnectionTracker()
+
+    def verify(self, ip_packet: dpkt.ip.IP) -> bool:
+
+        return True
+
+    def is_new_connection(self, ip_packet: dpkt.ip.IP) -> bool:
+        self.connectionTracker.count(ip_packet)
+        current = self.connectionTracker.get_count_in_connection(ip_packet)
+        return current == 1
+
+    def __eq__(self, other) -> bool:
+        return type(other) == CatchAllRule
+
+    def __repr__(self):
+        return 'CatchAllRuleClass'
+
+    __hash__ = AbstractMudRule.__hash__

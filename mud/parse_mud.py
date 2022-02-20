@@ -1,6 +1,7 @@
-from typing import NamedTuple, Dict, Union
+from typing import NamedTuple, Dict, Union, OrderedDict as TOrderedDict, List
+from collections import OrderedDict
 import json
-from .mud_rules import AbstractMudRule, MudRuleIP, MudRuleUDP, MudRuleICMP, MudRuleTCP, MudRuleIGMP
+from .mud_rules import AbstractMudRule, MudRuleIP, MudRuleUDP, MudRuleICMP, MudRuleTCP, MudRuleIGMP, CatchAllRule
 import dpkt
 import socket
 from dataclasses import dataclass
@@ -13,7 +14,7 @@ class PacketTracker:
     connections: int
 
 
-def _get_ip_addr_matcher(ip_section, reverse_dns: Dict[str, str]) -> tuple:
+def _get_ip_addr_matcher(ip_section, reverse_dns: Dict[str, List[str]]) -> tuple:
     """
 
     :param ip_section:
@@ -31,11 +32,11 @@ def _get_ip_addr_matcher(ip_section, reverse_dns: Dict[str, str]) -> tuple:
     return None, None
 
 
-ParsedMudFile = Dict[AbstractMudRule, PacketTracker]
+ParsedMudFile = TOrderedDict[AbstractMudRule, PacketTracker]
 
 
-def parse_mud_file(mud_file, reverse_dns: Dict[str, str], raise_on_unknown_rule = False) -> ParsedMudFile:
-    configs: ParsedMudFile = {}
+def parse_mud_file(mud_file, reverse_dns: Dict[str, List[str]], raise_on_unknown_rule = False) -> ParsedMudFile:
+    configs: ParsedMudFile = OrderedDict()
     with open(mud_file) as f:
         config_json = json.loads(f.read())
 
@@ -73,5 +74,7 @@ def parse_mud_file(mud_file, reverse_dns: Dict[str, str], raise_on_unknown_rule 
                 if raise_on_unknown_rule:
                     protocol = c['matches']['ipv4']['protocol']
                     raise Exception(f'Unknown rule: {protocol} in file {mud_file}')
+
+    configs[CatchAllRule()] = PacketTracker(0, 0, 0)
 
     return configs
