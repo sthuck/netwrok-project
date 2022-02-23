@@ -20,7 +20,7 @@ devices = [
     "echospot_merged",
     "firetv_merged",
     "google-home-mini_merged",
-    "insteon-hub_merged",
+    # "insteon-hub_merged",
     "lightify-hub_merged",
     "magichome-strip_merged",
     "nest-tstat_merged",
@@ -36,7 +36,8 @@ devices = [
     "wansview-cam-wired_merged",
     "xiaomi-cleaner_merged",
     "xiaomi-hub_merged",
-    "yi-camera_merged"]
+    "yi-camera_merged"
+]
 
 
 def get_pcap_counts(device: str, country: str, filter_factory):

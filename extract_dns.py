@@ -49,9 +49,12 @@ def extract_dns(device: str, country: str):
 
     # using loop because we might try to resolve a cname when we don't know the original name yet
     cnames_to_resolve = cnames
-    while len(cnames_to_resolve):
+    iterations_without_change = 0
+
+    while len(cnames_to_resolve) and iterations_without_change < 100:
         for name, aliases in cnames_to_resolve.items():  # key is known host name, value is requested name
             if name in name_to_ip:
+                iterations_without_change = 0
                 for alias in aliases:
                     ips = name_to_ip.get(name, set())
                     name_to_ip[alias] = ips
@@ -59,6 +62,7 @@ def extract_dns(device: str, country: str):
                     for ip in ips:
                         names = ip_to_name[ip]
                         ip_to_name[ip] = names.union({alias})
+        iterations_without_change = iterations_without_change + 1
 
         next_cnames_to_resolve = {}
         for name, aliases in cnames_to_resolve.items():
