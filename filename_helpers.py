@@ -12,6 +12,7 @@ def get_mud(device, country):
     device = device.replace('-', '_') \
         .replace('echodot', 'echo_dot') \
         .replace('echospot', 'echo_spot') \
+        .replace('echoplus', 'echo_plus') \
         .replace('firetv', 'fire_tv') \
         .replace('wansview_cam_wired', 'wansview_cam')
 

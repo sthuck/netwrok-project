@@ -17,6 +17,7 @@ devices = [
     "blink-camera_merged",
     "blink-security-hub_merged",
     "echodot_merged",
+    "echoplus_merged",
     "echospot_merged",
     "firetv_merged",
     "google-home-mini_merged",
